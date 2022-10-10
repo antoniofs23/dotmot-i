@@ -1,4 +1,4 @@
-from psychopy import locale_setup, sound, gui, visual, core, data, event, logging
+from psychopy import locale_setup, sound, gui, visual, core, data, event, logging, monitors
 from psychopy.constants import (NOT_STARTED, STARTED, PLAYING, PAUSED,
                                 STOPPED, FINISHED, PRESSED, RELEASED, FOREVER)
 import numpy as np  # whole numpy lib is available, prepend 'np.'
@@ -21,21 +21,22 @@ if dlg.OK == False:
 expInfo['date'] = data.getDateStr()  # add a simple timestamp
 expInfo['expName'] = expName
 
+'''
+monitor info hardcoded for now
+'''
+# set monitor resolution
+monsiz= (1920,1080)
+# set refresh rate
+frameDur = 1.0 / 120.0  
+
 # Setup the Window
 win = visual.Window(
-    size=(900, 900), fullscr=False, screen=0,
+    size=monsiz, fullscr=False, screen=0,
     allowGUI=False, allowStencil=False,
-    monitor='testMonitor', color=[0,0,0], colorSpace='rgb',
+    monitor='Monitor_1', color=[0,0,0], colorSpace='rgb', 
     blendMode='avg', useFBO=True)
 
 endExpNow = False  # flag for 'escape' or other condition => quit the exp
-
-# store frame rate of monitor if we can measure it
-expInfo['frameRate'] = win.getActualFrameRate()
-if expInfo['frameRate'] != None:
-    frameDur = 1.0 / round(expInfo['frameRate'])
-else:
-    frameDur = 1.0 / 60.0  # could not measure, so guess
     
 # Initialize components for Routine "trial"
 trialClock = core.Clock()
@@ -46,7 +47,7 @@ filename = _thisDir + os.sep + u'data/%s_%s_%s' % (expInfo['participant'], expNa
 # An ExperimentHandler isn't essential but helps with data saving
 thisExp = data.ExperimentHandler(name=expName, version='',
     extraInfo=expInfo, runtimeInfo=None,
-    originPath=u'/Users/antonio/Desktop/psychopyExp/customRDK.psyexp',
+    originPath=u'/home/antonio/WORKSPACE/projects/E01_phPIT_stim/customRDK.psyexp',
     savePickle=True, saveWideText=True,
     dataFileName=filename)
 
@@ -57,9 +58,9 @@ logging.console.setLevel(logging.WARNING)  # this outputs to the screen, not a f
 # Initialize dot cloud
 dots = visual.DotStim(
     win=win, name='dots',units='pix', 
-    nDots=500, dotSize=3,
+    nDots=1000, dotSize=5,
     speed=2, dir=1.0, coherence=1.0,
-    fieldPos=(200.0, 0.0), fieldSize=(300,300),fieldShape='circle',
+    fieldPos=(0.0, 0.0), fieldSize=(600,600),fieldShape='circle',
     signalDots='same', noiseDots='direction',dotLife=10,
     color=[1.0,1.0,1.0], colorSpace='rgb', opacity=1,
     depth=-1.0)
