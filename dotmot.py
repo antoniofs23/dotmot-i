@@ -1,4 +1,4 @@
-from psychopy import locale_setup, sound, gui, visual, core, data, event, logging, monitors
+from psychopy import locale_setup, sound, gui, visual, core, data, event, logging, monitors,tools
 from psychopy.constants import (NOT_STARTED, STARTED, PLAYING, PAUSED,
                                 STOPPED, FINISHED, PRESSED, RELEASED, FOREVER)
 import numpy as np  # whole numpy lib is available, prepend 'np.'
@@ -27,13 +27,13 @@ monitor info hardcoded for now
 # set monitor resolution
 monsiz= (1920,1080)
 # set refresh rate
-frameDur = 1.0 / 120.0  
+frameDur = 1.0 / 59.95
 
 # Setup the Window
 win = visual.Window(
     size=monsiz, fullscr=False, screen=0,
-    allowGUI=False, allowStencil=False,
-    monitor='Monitor_1', color=[0,0,0], colorSpace='rgb', 
+    allowGUI=True, allowStencil=False,
+    monitor='testMonitor', color=[0,0,0], colorSpace='rgb', 
     blendMode='avg', useFBO=True)
 
 endExpNow = False  # flag for 'escape' or other condition => quit the exp
@@ -57,15 +57,17 @@ logging.console.setLevel(logging.WARNING)  # this outputs to the screen, not a f
 
 # Initialize dot cloud
 dots = visual.DotStim(
-    win=win, name='dots',units='pix', 
-    nDots=1000, dotSize=5,
-    speed=2, dir=1.0, coherence=1.0,
-    fieldPos=(0.0, 0.0), fieldSize=(600,600),fieldShape='circle',
-    signalDots='same', noiseDots='direction',dotLife=10,
-    color=[1.0,1.0,1.0], colorSpace='rgb', opacity=1,
+   # need to check what the heck is going on with deg computations
+   # im assuming the monitor size is off
+    win=win, name='dots',units='deg',
+    nDots=500, dotSize=4.0,
+    speed=0.1, dir=0.0, coherence=1.0,
+    fieldPos=(12.0, 0.0), fieldSize=4, fieldShape='circle',
+    signalDots='same', noiseDots='direction',dotLife=3.0,
+    color=[1.0,1.0,1.0], colorSpace='rgb', opacity=None,
     depth=-1.0)
 fixation = visual.Circle(
-    win=win, name='fixation',units='pix',size=15,pos=(0, 0),
+    win=win, name='fixation',units='pix',size=5,pos=(0, 0),
     lineColor=[1,1,1], lineColorSpace='rgb',
     fillColor=[1,1,1], fillColorSpace='rgb',
     opacity=1, depth=-3.0, interpolate=True)
