@@ -7,13 +7,18 @@ from numpy import (sin, cos, tan, log, log10, pi, average,
 from numpy.random import random, randint, normal, shuffle
 import os  # handy system and path functions
 import sys  # to get file system encoding
+import dotmot_params as par # experimental parameters
+
+'''
+SET UP EXPT
+'''
 
 # Ensure that relative paths start from the same directory as this script
 _thisDir = os.path.dirname(os.path.abspath(__file__))
 os.chdir(_thisDir)
 
 # Store info about the experiment session
-expName = u'customRDK'  # from the Builder filename that created this script
+expName = u'dotmotv2'  # from the Builder filename that created this script
 expInfo = {'participant':'', 'session':'001'}
 dlg = gui.DlgFromDict(dictionary=expInfo, title=expName)
 if dlg.OK == False:
@@ -21,25 +26,15 @@ if dlg.OK == False:
 expInfo['date'] = data.getDateStr()  # add a simple timestamp
 expInfo['expName'] = expName
 
-'''
-monitor info hardcoded for now
-'''
-# set monitor resolution
-''' 
-psychopysics room
-'''
-monsiz= (1024,768)
-# set refresh rate
-frameDur = 1.0 / 85.0
-
 # Setup the Window
 win = visual.Window(
-    size=monsiz, fullscr=False, screen=0,
+    size=par.scr['resolution'], fullscr=False, screen=0,
     allowGUI=True, allowStencil=False,
     monitor='psychophysicsRoom_Monitor', color=[0,0,0], colorSpace='rgb', 
     blendMode='avg', useFBO=True)
 
-endExpNow = False  # flag for 'escape' or other condition => quit the exp
+# flag for 'escape' or other condition => quit the exp
+endExpNow = False  
     
 # Initialize components for Routine "trial"
 trialClock = core.Clock()
@@ -53,32 +48,52 @@ thisExp = data.ExperimentHandler(name=expName, version='',
     originPath=u'/home/antonio/Desktop/WORKSPACE/projects/E01_phPIT_stim/dotmot.psyexp',
     savePickle=True, saveWideText=True,
     dataFileName=filename)
-
+    
 # save a log file for detail verbose info
 logFile = logging.LogFile(filename+'.log', level=logging.EXP)
 logging.console.setLevel(logging.WARNING)  # this outputs to the screen, not a file
 
-# Initialize dot cloud
-dots = visual.DotStim(
-   # need to check what the heck is going on with deg computations
-   # im assuming the monitor size is off
-    win=win, name='dots',units='deg',
-    nDots=100, dotSize=4.0,
-    speed=0.08, dir=0.0, coherence=1,
-    fieldPos=(4.5, 0.0), fieldSize=2.25, fieldShape='circle',
+'''
+SET UP STIMULI
+'''
+# can update the stim parameters in the experiment
+r_dots = visual.DotStim(
+    win=win, units='deg',nDots=par.dots['nDots'], dotSize=par.dots['dotSiz'],
+    speed=par.dots['speed'], dir=par.dots['direction'], coherence=par.dots['coherence'],
+    fieldPos=par.R_fieldPos, fieldSize=par.dots['fieldSize'], fieldShape=par.dots['fieldShape'],
     signalDots='same', noiseDots='direction',dotLife=3.0,
-    color=[1.0,1.0,1.0], colorSpace='rgb', opacity=None,
-    depth=-1.0)
+    color=par.dots['color'], colorSpace='rgb', opacity=par.dots['opacity'],
+    depth=-par.dots['depth'])
+    
+l_dots = visual.DotStim(
+    win=win, units='deg',nDots=par.dots['nDots'], dotSize=par.dots['dotSiz'],
+    speed=par.dots['speed'], dir=par.dots['direction'], coherence=par.dots['coherence'],
+    fieldPos=par.L_fieldPos, fieldSize=par.dots['fieldSize'], fieldShape=par.dots['fieldShape'],
+    signalDots='same', noiseDots='direction',dotLife=3.0,
+    color=par.dots['color'], colorSpace='rgb', opacity=par.dots['opacity'],
+    depth=-par.dots['depth'])
+
+resp_sqr = visual.Rect(
+    win=win, units='deg',size=0.25,
+    pos=(0,0),lineColor=par.fix['lineColor'],lineColorSpace='rgb',
+    fillColor=par.fix['fillColor'], fillColorSpace='rgb',
+    opacity=par.fix['opacity'], depth=par.fix['depth'],interpolate=True)
     
 fixation = visual.Circle(
-    win=win, name='fixation',units='pix',size=5,pos=(0, 0),
-    lineColor=[1,1,1], lineColorSpace='rgb',
-    fillColor=[1,1,1], fillColorSpace='rgb',
-    opacity=1, depth=-3.0, interpolate=True)
-    
-# Create some handy timers
-globalClock = core.Clock()  # to track the time since experiment started
-routineTimer = core.CountdownTimer()  # to track time remaining of each (non-slip) routine 
+    win=win, units='deg',size=0.1,
+    pos=(0,0),lineColor=par.fix['lineColor'],lineColorSpace='rgb',
+    fillColor=par.fix['fillColor'], fillColorSpace='rgb',
+    opacity=par.fix['opacity'], depth=par.fix['depth'],interpolate=True)
+
+cue = visual.Line(
+    win=win, units='deg', start=(0,0), end= (par.cue['length'],0),
+    lineWidth=par.cue['width'],lineColor='white',pos=(0.25,0))
+
+'''
+TIMING
+'''
+globalClock = core.Clock()
+routineTimer=core.CountdownTimer()
 
 # --------Prepare to start Staircase "trials" --------
 # set up handler to look after next chosen value etc
@@ -88,6 +103,7 @@ trials = data.StairHandler(startVal=0.5, extraInfo=expInfo,
     nUp=1, nDown=3,
     minVal=0, maxVal=1,
     originPath=-1, name='trials')
+
 thisExp.addLoop(trials)  # add the loop to the experiment
 level = thisTrial = 0.5  # initialise some vals
 
@@ -110,16 +126,24 @@ for thisTrial in trials:
     
     thisExp.addData('corrAns', corrAns)
     thisExp.addData('direction', direction)
-    dots.setFieldCoherence(level)
-    dots.setDir(direction)
-    dots.refreshDots()
+    r_dots.setFieldCoherence(level);   l_dots.setFieldCoherence(level)
+    r_dots.setDir(direction);     l_dots.setDir(direction)
+    r_dots.refreshDots();     l_dots.refreshDots()
     resp = event.BuilderKeyResponse()
     # keep track of which components have finished
-    trialComponents = [dots, resp, fixation]
+    trialComponents = [r_dots,l_dots, resp, fixation]
     for thisComponent in trialComponents:
         if hasattr(thisComponent, 'status'):
             thisComponent.status = NOT_STARTED
     
+    # fixation cross
+    fixation.draw()
+    
+    # update and display attention cue
+    cue.draw()
+    
+    win.flip()
+    core.wait(500/1000)
     # -------Start Routine "trial"-------
     while continueRoutine:
         # get current time
@@ -129,14 +153,14 @@ for thisTrial in trials:
         
         
         # *dots* updates
-        if t >= 0.5 and dots.status == NOT_STARTED:
+        if t >= 0.5 and r_dots.status == NOT_STARTED:
             # keep track of start time/frame for later
-            dots.tStart = t
-            dots.frameNStart = frameN  # exact frame index
-            dots.setAutoDraw(True)
+            r_dots.tStart = t;  l_dots.tStart = t
+            r_dots.frameNStart = frameN;   l_dots.frameNStart = frameN# exact frame index
+            r_dots.setAutoDraw(True);  l_dots.setAutoDraw(True)
         frameRemains = 0.5 + 1.0- win.monitorFramePeriod * 0.75  # most of one frame period left
-        if dots.status == STARTED and t >= frameRemains:
-            dots.setAutoDraw(False)
+        if r_dots.status == STARTED and t >= frameRemains:
+            r_dots.setAutoDraw(False);   l_dots.setAutoDraw(False)
         
         # *resp* updates
         if t >= 0.5 and resp.status == NOT_STARTED:
@@ -172,6 +196,10 @@ for thisTrial in trials:
             fixation.frameNStart = frameN  # exact frame index
             fixation.setAutoDraw(True)
         
+        # draw response circles
+        for pos in par.resp_pos:
+                resp_sqr.pos = pos
+                resp_sqr.draw()
         # check if all components have finished
         if not continueRoutine:  # a component has requested a forced-end of Routine
             break
@@ -208,15 +236,3 @@ for thisTrial in trials:
     # the Routine "trial" was not non-slip safe, so reset the non-slip timer
     routineTimer.reset()
     thisExp.nextEntry()
-    
-# staircase completed
-
-
-# these shouldn't be strictly necessary (should auto-save)
-thisExp.saveAsWideText(filename+'.csv')
-thisExp.saveAsPickle(filename)
-logging.flush()
-# make sure everything is closed down
-thisExp.abort()  # or data files will save again on exit
-win.close()
-core.quit()
