@@ -18,7 +18,7 @@ _thisDir = os.path.dirname(os.path.abspath(__file__))
 os.chdir(_thisDir)
 
 # Store info about the experiment session
-expName = u'dotmotv2'  # from the Builder filename that created this script
+expName = u'dotmot_stair'  # from the Builder filename that created this script
 expInfo = {'participant':'', 'session':'001'}
 dlg = gui.DlgFromDict(dictionary=expInfo, title=expName)
 if dlg.OK == False:
@@ -57,38 +57,6 @@ logging.console.setLevel(logging.WARNING)  # this outputs to the screen, not a f
 SET UP STIMULI
 '''
 # can update the stim parameters in the experiment
-r_dots = visual.DotStim(
-    win=win, units='deg',nDots=par.dots['nDots'], dotSize=par.dots['dotSiz'],
-    speed=par.dots['speed'], dir=par.dots['direction'], coherence=par.dots['coherence'],
-    fieldPos=par.R_fieldPos, fieldSize=par.dots['fieldSize'], fieldShape=par.dots['fieldShape'],
-    signalDots='same', noiseDots='direction',dotLife=3.0,
-    color=par.dots['color'], colorSpace='rgb', opacity=par.dots['opacity'],
-    depth=-par.dots['depth'])
-    
-l_dots = visual.DotStim(
-    win=win, units='deg',nDots=par.dots['nDots'], dotSize=par.dots['dotSiz'],
-    speed=par.dots['speed'], dir=par.dots['direction'], coherence=par.dots['coherence'],
-    fieldPos=par.L_fieldPos, fieldSize=par.dots['fieldSize'], fieldShape=par.dots['fieldShape'],
-    signalDots='same', noiseDots='direction',dotLife=3.0,
-    color=par.dots['color'], colorSpace='rgb', opacity=par.dots['opacity'],
-    depth=-par.dots['depth'])
-
-resp_sqr = visual.Rect(
-    win=win, units='deg',size=0.25,
-    pos=(0,0),lineColor=par.fix['lineColor'],lineColorSpace='rgb',
-    fillColor=par.fix['fillColor'], fillColorSpace='rgb',
-    opacity=par.fix['opacity'], depth=par.fix['depth'],interpolate=True)
-    
-fixation = visual.Circle(
-    win=win, units='deg',size=0.1,
-    pos=(0,0),lineColor=par.fix['lineColor'],lineColorSpace='rgb',
-    fillColor=par.fix['fillColor'], fillColorSpace='rgb',
-    opacity=par.fix['opacity'], depth=par.fix['depth'],interpolate=True)
-
-cue = visual.Line(
-    win=win, units='deg', start=(0,0), end= (par.cue['length'],0),
-    lineWidth=par.cue['width'],lineColor='white',pos=(0.25,0))
-
 '''
 TIMING
 '''
@@ -99,8 +67,8 @@ routineTimer=core.CountdownTimer()
 # set up handler to look after next chosen value etc
 trials = data.StairHandler(startVal=0.5, extraInfo=expInfo,
     stepSizes=[0.4, 0.2, 0.2, 0.1], stepType='log',
-    nReversals=0, nTrials=50, 
-    nUp=1, nDown=3,
+    nReversals=0, nTrials=10, 
+    nUp=2, nDown=1,
     minVal=0, maxVal=1,
     originPath=-1, name='trials')
 
@@ -126,8 +94,8 @@ for thisTrial in trials:
     
     thisExp.addData('corrAns', corrAns)
     thisExp.addData('direction', direction)
-    r_dots.setFieldCoherence(level);   l_dots.setFieldCoherence(level)
-    r_dots.setDir(direction);     l_dots.setDir(direction)
+    par.r_dots.setFieldCoherence(level);   l_dots.setFieldCoherence(level)
+    par.r_dots.setDir(direction);     l_dots.setDir(direction)
     r_dots.refreshDots();     l_dots.refreshDots()
     resp = event.BuilderKeyResponse()
     # keep track of which components have finished
@@ -222,6 +190,11 @@ for thisTrial in trials:
         if hasattr(thisComponent, "setAutoDraw"):
             thisComponent.setAutoDraw(False)
     
+    # check how long dots are on the screen
+    t_end = trialClock.getTime()
+    t_dottime=t_end-t
+    
+    
     # check responses
     if resp.keys in ['', [], None]:  # No response was made
         resp.keys=None
@@ -233,6 +206,7 @@ for thisTrial in trials:
     # store data for trials (StairHandler)
     trials.addResponse(resp.corr)
     trials.addOtherData('resp.rt', resp.rt)
+    trials.addOtherData('t_dotlife', t_dottime*1000)
     # the Routine "trial" was not non-slip safe, so reset the non-slip timer
     routineTimer.reset()
     thisExp.nextEntry()
