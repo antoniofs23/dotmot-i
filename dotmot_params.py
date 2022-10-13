@@ -1,6 +1,16 @@
 from psychopy import locale_setup, sound, gui, visual, core, data, event, logging, monitors,tools
 
-#
+#total number of trials per session
+trialsN = 10
+speed_s  = 0.05
+
+#timing 
+t_win = 0.06 # timing for typical motion event
+t_targ = 0.5  # timing of motion event
+mte = 60      # set max number of motion events
+cue_t=0.5   # timing of attention cue
+fix_t   = 0.5  # timing for fixation cue
+
 #screen params
 scr = dict(resolution=(1024,768), refresh_rate=85)
 
@@ -9,13 +19,13 @@ fix = dict(size=0.2, lineColor=[1,1,1], fillColor=[1,1,1],
 opacity=1, depth=-3.0)
 
 # cue parameters
-cue = dict(length=0.1,width=0.6)
+cue_ = dict(length=0.1,width=0.6)
 
 #stimulus parameters
 dots = dict(
 nDots = 200,
 dotSiz= 4.0,
-speed = 0.08,
+speed = speed_s,
 coherence = 1,
 direction = 45,
 fieldSize = 2.25,
@@ -23,6 +33,11 @@ fieldShape = 'circle',
 color=[1.0,1.0,1.0],
 opacity=None,
 depth=-1)
+
+# possible motion direction
+# 0 = left to right 
+# increasing angle rotates ccw
+motion_dir = [0,45,90,135,180,225,270,315]
 
 # left vs right dot Field
 # eccentricity in degrees
@@ -46,7 +61,7 @@ win = visual.Window(
 # right dot field
 r_dots = visual.DotStim(
     win=win, units='deg',nDots=dots['nDots'], dotSize=dots['dotSiz'],
-    speed=0.02, dir=dots['direction'], coherence=1,
+    speed=dots['speed'], dir=dots['direction'], coherence=1,
     fieldPos=R_fieldPos, fieldSize=dots['fieldSize'], fieldShape=dots['fieldShape'],
     signalDots='same', noiseDots='direction',dotLife=3.0,
     color=dots['color'], colorSpace='rgb', opacity=dots['opacity'],
@@ -55,7 +70,7 @@ r_dots = visual.DotStim(
 # left dot field
 l_dots = visual.DotStim(
     win=win, units='deg',nDots=dots['nDots'], dotSize=dots['dotSiz'],
-    speed=0.02, dir=dots['direction'], coherence=1,
+    speed=dots['speed'], dir=dots['direction'], coherence=1,
     fieldPos=L_fieldPos, fieldSize=dots['fieldSize'], fieldShape=dots['fieldShape'],
     signalDots='same', noiseDots='direction',dotLife=3.0,
     color=dots['color'], colorSpace='rgb', opacity=dots['opacity'],
@@ -77,8 +92,8 @@ fixation = visual.Circle(
 
 # attention cue
 cue = visual.Line(
-    win=win, units='deg', start=(0,0), end=(cue['length'],0),
-    lineWidth=cue['width'],lineColor='white',pos=(0.25,0))
+    win=win, units='deg', start=(0,0), end=(cue_['length'],0),
+    lineWidth=cue_['width'],lineColor='white',pos=(0.25,0))
 
 
         
