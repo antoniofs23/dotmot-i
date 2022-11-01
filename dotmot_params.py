@@ -58,6 +58,10 @@ win = visual.Window(
     blendMode='avg', useFBO=True)
     
 # set up stim
+# introduction Image
+path_to_image="instruc.png"
+image_stim=visual.ImageStim(win,image=path_to_image)
+
 # right dot field
 r_dots = visual.DotStim(
     win=win, units='deg',nDots=dots['nDots'], dotSize=dots['dotSiz'],
@@ -91,11 +95,13 @@ fixation = visual.Circle(
     opacity=fix['opacity'], depth=fix['depth'],interpolate=True)
 
 # attention cue
-cue = visual.Line(
-    win=win, units='deg', start=(0,0), end=(cue_['length'],0),
-    lineWidth=cue_['width'],lineColor='white',pos=(0.25,0))
+cue_right = visual.ShapeStim(win,units='deg',
+    vertices = [[-0.2,-0.1], [-0.2,0.1], [0.2,0]],
+    pos=(0.45,0.0),lineColor = 'white', fillColor = 'white')
+    
+cue_left = visual.ShapeStim(win,units='deg',
+    vertices = [[-0.2,-0.1], [-0.2,0.1], [0.2,0]],ori=180.0,
+    pos=(-0.45,0.0),lineColor = 'white', fillColor = 'white')
 
-
-        
 
 

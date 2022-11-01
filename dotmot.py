@@ -8,6 +8,7 @@ from numpy.random import random, randint, normal, shuffle
 import os  # handy system and path functions
 import sys  # to get file system encoding
 import dotmot_params as par # experimental parameters
+from psychopy.hardware import keyboard
 
 '''
 SET UP EXPT
@@ -46,85 +47,96 @@ thisExp = data.ExperimentHandler(name=expName, version='1.0', extraInfo=expInfo,
 
 # add trials to handler
 thisExp.addLoop(trials)
+
+# Instructions screen
+par.image_stim.draw()
+win.flip()
+event.waitKeys() # press space to continue
+
 '''
 START TRIALS
 '''
 for  thisTrial in trials:
-    # set when the target event happens
-    targ_event_loc = int(randint(30,high=par.mte,size=1))
     
-   # draw fixations for 500ms
-    par.fixation.draw()
-    win.flip()
-    core.wait(par.fix_t)
-    
-    # present attention cue for 500ms
-    # valid [1]
-    par.fixation.draw()
-    if thisTrial['target_loc']=='right' and thisTrial['attention_cue']=='valid':
-        par.cue.end = (par.cue_['length'],0); par.cue.draw()
-    if thisTrial['target_loc']=='left' and thisTrial['attention_cue']=='valid':
-        par.cue.start = (-0.1,0); par.cue.end=(0,0); par.cue.draw()
+        # set when the target event happens
+        targ_event_loc = int(randint(30,high=par.mte,size=1))
         
-    #invalid [-1]
-    if thisTrial['target_loc']=='right' and thisTrial['attention_cue']=='invalid':
-        par.cue.start = (-0.1,0); par.cue.end=(0,0); par.cue.draw()
-    if thisTrial['target_loc']=='left' and thisTrial['attention_cue']=='invalid':
-        par.cue.end = (par.cue_['length'],0); par.cue.draw()
-    
-    # neutral [0]
-    if thisTrial['attention_cue']=='neutral':
-        par.cue.end = (par.cue_['length'],0); par.cue.draw()   
-        par.cue.start = (-0.1,0); par.cue.end=(0,0); par.cue.draw()
-    
-    win.flip()
-    core.wait(par.cue_t)
+       # draw fixations for 500ms
+        par.fixation.draw()
+        for loc in par.resp_pos:
+            par.resp_sqr.pos= loc
+            par.resp_sqr.draw()
+        win.flip()
+        core.wait(par.fix_t)
+        
+        # present attention cue for 500ms
+        # valid [1]
+        par.fixation.draw()
+        for loc in par.resp_pos:
+            par.resp_sqr.pos= loc
+            par.resp_sqr.draw()
+            
+        if thisTrial['target_loc']=='right' and thisTrial['attention_cue']=='valid':
+            par.cue_right.draw()
+        if thisTrial['target_loc']=='left' and thisTrial['attention_cue']=='valid':
+            par.cue_left.draw()
+            
+        #invalid [-1]
+        if thisTrial['target_loc']=='right' and thisTrial['attention_cue']=='invalid':
+            par.cue_left.draw()
+        if thisTrial['target_loc']=='left' and thisTrial['attention_cue']=='invalid':
+            par.cue_right.draw()
+        
+        # neutral [0]
+        if thisTrial['attention_cue']=='neutral':
+            par.cue_right.draw()
+            par.cue_left.draw()
+        
+        win.flip()
+        core.wait(par.cue_t)
 
-    for num in range(par.mte):
-        # reset trial clock
-        t = trialClock.reset(); 
-        t = trialClock.getTime()
-        
-        # change dot direction - randomly chosen from motion dir list
-        par.r_dots.dir= par.motion_dir[int(randint(len(par.motion_dir),size=1))]
-        par.l_dots.dir= par.motion_dir[int(randint(len(par.motion_dir),size=1))]
-        
-        # set motion event timing
-        # change motion event timing depending on target or not
-        if num == targ_event_loc:
-            t_mevent=t+par.t_targ
-            trials.addData('left_dot_dir',par.l_dots.dir)
-            trials.addData('right_dot_dir',par.r_dots.dir)
-        else:
-            t_mevent= t+par.t_win
+        for num in range(par.mte):
+            # reset trial clock
+            t = trialClock.reset(); 
+            t = trialClock.getTime()
             
+            # change dot direction - randomly chosen from motion dir list
+            par.r_dots.dir= par.motion_dir[int(randint(len(par.motion_dir),size=1))]
+            par.l_dots.dir= par.motion_dir[int(randint(len(par.motion_dir),size=1))]
+            
+            # set motion event timing
+            # change motion event timing depending on target or not
+            if num == targ_event_loc:
+                t_mevent=t+par.t_targ
+                trials.addData('left_dot_dir',par.l_dots.dir)
+                trials.addData('right_dot_dir',par.r_dots.dir)
+            else:
+                t_mevent= t+par.t_win
+                
+            
+            while t < t_mevent:
+                # display fixation cross
+                par.fixation.draw()
+                for loc in par.resp_pos:
+                    par.resp_sqr.pos= loc
+                    par.resp_sqr.draw()
+                
+                # draw dot clouds
+                par.r_dots.draw()
+                par.l_dots.draw()
+                win.flip()
+                
+                # set dot refresh --speed--
+                #core.wait(speed)
+                t = trialClock.getTime() 
+                # record key presses
+                keys = event.getKeys()
+                if keys:
+                    if 'escape' in keys:
+                        core.quit()
+                
+                # store data
+        trials.addData('targ_event_idx',targ_event_loc)
+        thisExp.nextEntry()
+                
         
-        while t < t_mevent:
-            # display fixation cross
-            par.fixation.draw()
-            
-            # draw dot clouds
-            par.r_dots.draw()
-            par.l_dots.draw()
-            win.flip()
-            
-            # set dot refresh --speed--
-            #core.wait(speed)
-            t = trialClock.getTime() 
-            # record key presses
-            keys = event.getKeys()
-            if keys:
-                if 'escape' in keys:
-                    core.quit()
-                #elif len(keys)==2:
-                    #thisExp.addData('keys',' '.join(keys)
-                    #thisExp.addData('RT',t)
-                    
-            # store data
-    trials.addData('targ_event_idx',targ_event_loc)
-    thisExp.nextEntry()
-    
-    
-    # collect key presses
-    
-    
