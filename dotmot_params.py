@@ -34,6 +34,9 @@ color=[1.0,1.0,1.0],
 opacity=None,
 depth=-1)
 
+# number of repetitions of the basic 10 trials i.e. 4 = 40 trials
+numreps=1
+
 # possible motion direction
 # 0 = left to right 
 # increasing angle rotates ccw

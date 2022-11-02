@@ -37,7 +37,7 @@ trialClock = core.Clock()
 
 # import condition file
 #IMPORTANT: IF RUNNING ON UBUNTU--ONLY TAKES .CSV
-trials = data.TrialHandler(trialList=data.importConditions('conditions.csv'), nReps=1)
+trials = data.TrialHandler(trialList=data.importConditions('conditions.csv'), nReps=par.numreps)
 
 # Data file name stem = absolute path + name; later add .psyexp, .csv, .log, etc
 filename = _thisDir + os.sep + u'data/%s_%s_%s' % (expInfo['participant'], expName, expInfo['date'])
@@ -69,25 +69,21 @@ for  thisTrial in trials:
         win.flip()
         core.wait(par.fix_t)
         
-        # present attention cue for 500ms
-        # valid [1]
         par.fixation.draw()
         for loc in par.resp_pos:
             par.resp_sqr.pos= loc
             par.resp_sqr.draw()
-            
-        if thisTrial['target_loc']=='right' and thisTrial['attention_cue']=='valid':
-            par.cue_right.draw()
-        if thisTrial['target_loc']=='left' and thisTrial['attention_cue']=='valid':
-            par.cue_left.draw()
-            
-        #invalid [-1]
-        if thisTrial['target_loc']=='right' and thisTrial['attention_cue']=='invalid':
-            par.cue_left.draw()
-        if thisTrial['target_loc']=='left' and thisTrial['attention_cue']=='invalid':
-            par.cue_right.draw()
         
-        # neutral [0]
+        # present attention cue for 500ms
+        # valid 
+        print(thisTrial['target_loc'])
+        if thisTrial['attention_cue']=='valid':
+            if thisTrial['target_loc']=='left':
+                par.cue_left.draw()
+            else:
+                par.cue_right.draw()
+            
+        # neutral 
         if thisTrial['attention_cue']=='neutral':
             par.cue_right.draw()
             par.cue_left.draw()
@@ -112,7 +108,6 @@ for  thisTrial in trials:
                 trials.addData('right_dot_dir',par.r_dots.dir)
             else:
                 t_mevent= t+par.t_win
-                
             
             while t < t_mevent:
                 # display fixation cross
