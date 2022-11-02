@@ -76,7 +76,6 @@ for  thisTrial in trials:
         
         # present attention cue for 500ms
         # valid 
-        print(thisTrial['target_loc'])
         if thisTrial['attention_cue']=='valid':
             if thisTrial['target_loc']=='left':
                 par.cue_left.draw()
