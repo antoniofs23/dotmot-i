@@ -12,7 +12,7 @@ cue_t=0.5   # timing of attention cue
 fix_t   = 0.5  # timing for fixation cue
 
 #screen params
-scr = dict(resolution=(1024,768), refresh_rate=85)
+scr = dict(resolution=(640,480), refresh_rate=60)
 
 # fixation parameters
 fix = dict(size=0.2, lineColor=[1,1,1], fillColor=[1,1,1],
@@ -24,7 +24,7 @@ cue_ = dict(length=0.1,width=0.6)
 #stimulus parameters
 dots = dict(
 nDots = 200,
-dotSiz= 4.0,
+dotSiz= 2.0,
 speed = speed_s,
 coherence = 1,
 direction = 45,
@@ -55,9 +55,9 @@ resp_pos = [(8.5,0),(-8.5,0),
 
 # Setup the Window
 win = visual.Window(
-    size=scr['resolution'], fullscr=False, screen=0,
-    allowGUI=True, allowStencil=False,
-    monitor='psychophysicsRoom_Monitor', color=[0,0,0], colorSpace='rgb', 
+    size=scr['resolution'], fullscr=True, screen=1,
+    allowGUI=False, allowStencil=False,
+    monitor='testMonitor', color=[0,0,0], colorSpace='rgb', 
     blendMode='avg', useFBO=True)
     
 # set up stim

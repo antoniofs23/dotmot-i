@@ -1,4 +1,4 @@
-from psychopy import locale_setup, sound, gui, visual, core, data, event, logging, monitors,tools
+from psychopy import locale_setup, sound, gui, visual, core, data, event, logging, monitors,tools,sound
 from psychopy.constants import (NOT_STARTED, STARTED, PLAYING, PAUSED,
                                 STOPPED, FINISHED, PRESSED, RELEASED, FOREVER)
 import numpy as np  # whole numpy lib is available, prepend 'np.'
@@ -48,15 +48,20 @@ thisExp = data.ExperimentHandler(name=expName, version='1.0', extraInfo=expInfo,
 # add trials to handler
 thisExp.addLoop(trials)
 
-# Instructions screen
+# Instructions screenn
 par.image_stim.draw()
 win.flip()
 event.waitKeys() # press space to continue
 
+mySound=sound.Sound('A')
+
 '''
-START TRIALS
+START TRIALSSs
 '''
 for  thisTrial in trials:
+        # beep at the start of the trial
+        mySound.play()
+    
     
         # set when the target event happens
         targ_event_loc = int(randint(30,high=par.mte,size=1))
@@ -68,7 +73,6 @@ for  thisTrial in trials:
             par.resp_sqr.draw()
         win.flip()
         core.wait(par.fix_t)
-        
         par.fixation.draw()
         for loc in par.resp_pos:
             par.resp_sqr.pos= loc
