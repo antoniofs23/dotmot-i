@@ -1,5 +1,8 @@
 from psychopy import locale_setup, sound, gui, visual, core, data, event, logging, monitors,tools
 
+#turn eyetracking on or off
+eyetracking=True
+
 #total number of trials per session
 trialsN = 10
 speed_s  = 0.05
@@ -105,6 +108,5 @@ cue_right = visual.ShapeStim(win,units='deg',
 cue_left = visual.ShapeStim(win,units='deg',
     vertices = [[-0.2,-0.1], [-0.2,0.1], [0.2,0]],ori=180.0,
     pos=(-0.45,0.0),lineColor = 'white', fillColor = 'white')
-
-
-
+    
+    

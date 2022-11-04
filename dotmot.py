@@ -1,4 +1,4 @@
-from psychopy import locale_setup, sound, gui, visual, core, data, event, logging, monitors,tools,sound
+from psychopy import locale_setup, sound, gui, visual, core, data, event, logging, monitors,tools,sound,iohub,hardware
 from psychopy.constants import (NOT_STARTED, STARTED, PLAYING, PAUSED,
                                 STOPPED, FINISHED, PRESSED, RELEASED, FOREVER)
 import numpy as np  # whole numpy lib is available, prepend 'np.'
@@ -9,6 +9,9 @@ import os  # handy system and path functions
 import sys  # to get file system encoding
 import dotmot_params as par # experimental parameters
 from psychopy.hardware import keyboard
+import psychopy.iohub.devices.eyetracker.hw.pupil_labs.pupil_core as pc
+import psychopy.iohub as io
+#import zmq  #eye-tracking lib
 
 '''
 SET UP EXPT
@@ -40,7 +43,7 @@ trialClock = core.Clock()
 trials = data.TrialHandler(trialList=data.importConditions('conditions.csv'), nReps=par.numreps)
 
 # Data file name stem = absolute path + name; later add .psyexp, .csv, .log, etc
-filename = _thisDir + os.sep + u'data/%s_%s_%s' % (expInfo['participant'], expName, expInfo['date'])
+filename = _thisDir + os.sep + u'data/%s_%s_%s' % (expInfo['participant'], expInfo['session'], expInfo['date'])
 
 # An ExperimentHandler isn't essential but helps with data saving
 thisExp = data.ExperimentHandler(name=expName, version='1.0', extraInfo=expInfo, dataFileName=filename)
@@ -48,7 +51,50 @@ thisExp = data.ExperimentHandler(name=expName, version='1.0', extraInfo=expInfo,
 # add trials to handler
 thisExp.addLoop(trials)
 
-# Instructions screenn
+'''
+EYE-TRACKING
+'''
+# Setup ioHub
+ioConfig = {}
+
+if par.eyetracking:
+    # Setup eyetracking
+    ioConfig['eyetracker.hw.pupil_labs.pupil_core.EyeTracker'] = {
+        'name': 'tracker',
+        'runtime_settings': {
+            'pupillometry_only': False,
+            'surface_name': 'psychopy_iohub_surface',
+            'gaze_confidence_threshold': 0.6,
+            'pupil_remote': {
+                'ip_address': '127.0.0.1',
+                'port': 50020.0,
+                'timeout_ms': 1000.0,
+            },
+            'pupil_capture_recording': {
+                'enabled': True,
+                'location': '',
+            }
+        }
+    }
+   # Setup iohub keyboard
+    ioServer=io.launchHubServer(window=win,**ioConfig)
+    eyetracker = ioServer.getDevice('tracker')
+    
+    #define target for calibration
+    calibrationTarget = visual.TargetStim(win,
+        name='calibrationTarget', radius=0.01, fillColor=' ',
+        borderColor='black', lineWidth=2.0, innerRadius=0.0035, innerFillColor='green',
+        innerBorderColor='Black', innerLineWidth=2.0, colorSpace='rgb', units=None)
+    
+    #define parameters for calibration
+    calibration=hardware.eyetracker.EyetrackerCalibration(win, eyetracker, calibrationTarget, units=None,
+        colorSpace='rgb',progressMode='time',targetDur=1.5,expandScale=1.5,targetLayout='NINE_POINTS',
+        randomisePos=True,textColor='white',movementAnimation=True,targetDelay=1.0)
+    
+    #run calibration
+    calibration.run()
+
+# Instructions screen
 par.image_stim.draw()
 win.flip()
 event.waitKeys() # press space to continue
@@ -56,7 +102,7 @@ event.waitKeys() # press space to continue
 mySound=sound.Sound('A')
 
 '''
-START TRIALSSs
+START TRIALSS
 '''
 for  thisTrial in trials:
         # beep at the start of the trial
@@ -113,6 +159,7 @@ for  thisTrial in trials:
                 t_mevent= t+par.t_win
             
             while t < t_mevent:
+                eye_loc = pc.EyeTracker.getLastGazePosition()
                 # display fixation cross
                 par.fixation.draw()
                 for loc in par.resp_pos:
@@ -135,6 +182,10 @@ for  thisTrial in trials:
                 
                 # store data
         trials.addData('targ_event_idx',targ_event_loc)
+        trials.addData('gaze_position',eye_loc)
         thisExp.nextEntry()
-                
-        
+
+# end recording
+#core.wait(3) # wait 3 secs
+#pupil_remote.send_string('r') # end recording
+pc.EyeTracker.setRecordingState(should_be_recording=False)
