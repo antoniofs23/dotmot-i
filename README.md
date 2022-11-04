@@ -2,5 +2,7 @@
 Dot motion detection/discrimination task built in psychopy
 
 Things to do:
-	- collect response
-	- fix attention cue
+	- collect response   [check]
+	- fix attention cue  [check]
+	- get eyetracking to work 
+	
