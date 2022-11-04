@@ -13,6 +13,7 @@ import psychopy.iohub.devices.eyetracker.hw.pupil_labs.pupil_core as pc
 import psychopy.iohub as io
 import zmq  #eye-tracking lib
 from msgpack import loads
+
 '''
 SET UP EXPT
 '''
@@ -88,6 +89,17 @@ mySound=sound.Sound('A')
 START TRIALS
 '''
 for  thisTrial in trials:
+    #get gaze position
+        topic, msg = sub.recv_multipart()
+        gaze_position = loads(msg, raw=False)
+        
+       # test eye-tracking
+        loc = gaze_position['norm_pos']
+        pix_loc = (loc[0]*640,loc[1]*480)
+        deg = par.pix2deg(par.scr,pix_loc)
+        polar_ang = par.polarang(a=deg[0],b=deg[1])
+        print(polar_ang)
+    
         # beep at the start of the trial
         mySound.play()
         
@@ -142,14 +154,15 @@ for  thisTrial in trials:
             
             while t < t_mevent:
                 #get gaze position
-                topic, msg = sub.recv_multipart()
-                gaze_position = loads(msg, raw=False)
+                #topic, msg = sub.recv_multipart()
+                #gaze_position = loads(msg, raw=False)
                  
                 #to go from norm_pos to pixel space multiply by screen res
-                loc = gaze_position['norm_pos']
-                pix_loc = (loc[0]*640,loc[1]*480)
-                print(pix_loc)
-                
+                #loc = gaze_position['norm_pos']
+                #pix_loc = (loc[0]*640,loc[1]*480)
+                #deg = par.pix2deg(par.scr,pix_loc)
+                #polar_ang = par.polarang(a=deg[0],b=deg[1])
+                #print(polar_ang)
                 # display fixation cross
                 par.fixation.draw()
                 for loc in par.resp_pos:
