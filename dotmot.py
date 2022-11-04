@@ -11,8 +11,8 @@ import dotmot_params as par # experimental parameters
 from psychopy.hardware import keyboard
 import psychopy.iohub.devices.eyetracker.hw.pupil_labs.pupil_core as pc
 import psychopy.iohub as io
-#import zmq  #eye-tracking lib
-
+import zmq  #eye-tracking lib
+from msgpack import loads
 '''
 SET UP EXPT
 '''
@@ -54,46 +54,29 @@ thisExp.addLoop(trials)
 '''
 EYE-TRACKING
 '''
-# Setup ioHub
-ioConfig = {}
-
 if par.eyetracking:
-    # Setup eyetracking
-    ioConfig['eyetracker.hw.pupil_labs.pupil_core.EyeTracker'] = {
-        'name': 'tracker',
-        'runtime_settings': {
-            'pupillometry_only': False,
-            'surface_name': 'psychopy_iohub_surface',
-            'gaze_confidence_threshold': 0.6,
-            'pupil_remote': {
-                'ip_address': '127.0.0.1',
-                'port': 50020.0,
-                'timeout_ms': 1000.0,
-            },
-            'pupil_capture_recording': {
-                'enabled': True,
-                'location': '',
-            }
-        }
-    }
-   # Setup iohub keyboard
-    ioServer=io.launchHubServer(window=win,**ioConfig)
-    eyetracker = ioServer.getDevice('tracker')
+    ctx=zmq.Context()
+    pupil_remote=ctx.socket(zmq.REQ)
+    pupil_remote.connect('tcp://127.0.0.1:50020')
     
-    #define target for calibration
-    calibrationTarget = visual.TargetStim(win,
-        name='calibrationTarget', radius=0.01, fillColor=' ',
-        borderColor='black', lineWidth=2.0, innerRadius=0.0035, innerFillColor='green',
-        innerBorderColor='Black', innerLineWidth=2.0, colorSpace='rgb', units=None)
+    #start recording
+    pupil_remote.send_string('R '+filename)
+    print(pupil_remote.recv_string())
     
-    #define parameters for calibration
-    calibration=hardware.eyetracker.EyetrackerCalibration(win, eyetracker, calibrationTarget, units=None,
-        colorSpace='rgb',progressMode='time',targetDur=1.5,expandScale=1.5,targetLayout='NINE_POINTS',
-        randomisePos=True,textColor='white',movementAnimation=True,targetDelay=1.0)
+    # start calibration
+    pupil_remote.send_string('C')
+    print(pupil_remote.recv_string())
     
-    #run calibration
-    calibration.run()
-
+    # ask for sub port
+    pupil_remote.send_string('SUB_PORT')
+    sub_port = pupil_remote.recv_string()
+    
+    #open sub port to listen pupil
+    sub = ctx.socket(zmq.SUB)
+    sub.connect("tcp://{}:{}".format('127.0.0.1', sub_port))
+    sub.subscribe('gaze.')
+    
+    
 # Instructions screen
 par.image_stim.draw()
 win.flip()
@@ -102,13 +85,12 @@ event.waitKeys() # press space to continue
 mySound=sound.Sound('A')
 
 '''
-START TRIALSS
+START TRIALS
 '''
 for  thisTrial in trials:
         # beep at the start of the trial
         mySound.play()
-    
-    
+        
         # set when the target event happens
         targ_event_loc = int(randint(30,high=par.mte,size=1))
         
@@ -142,7 +124,7 @@ for  thisTrial in trials:
 
         for num in range(par.mte):
             # reset trial clock
-            t = trialClock.reset(); 
+            t = trialClock.reset()
             t = trialClock.getTime()
             
             # change dot direction - randomly chosen from motion dir list
@@ -159,7 +141,15 @@ for  thisTrial in trials:
                 t_mevent= t+par.t_win
             
             while t < t_mevent:
-                eye_loc = pc.EyeTracker.getLastGazePosition()
+                #get gaze position
+                topic, msg = sub.recv_multipart()
+                gaze_position = loads(msg, raw=False)
+                 
+                #to go from norm_pos to pixel space multiply by screen res
+                loc = gaze_position['norm_pos']
+                pix_loc = (loc[0]*640,loc[1]*480)
+                print(pix_loc)
+                
                 # display fixation cross
                 par.fixation.draw()
                 for loc in par.resp_pos:
@@ -182,10 +172,8 @@ for  thisTrial in trials:
                 
                 # store data
         trials.addData('targ_event_idx',targ_event_loc)
-        trials.addData('gaze_position',eye_loc)
         thisExp.nextEntry()
 
 # end recording
-#core.wait(3) # wait 3 secs
-#pupil_remote.send_string('r') # end recording
-pc.EyeTracker.setRecordingState(should_be_recording=False)
+core.wait(3) # wait 3 secs
+pupil_remote.send_string('r') # end recording
