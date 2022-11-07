@@ -1,4 +1,4 @@
-from psychopy import locale_setup, sound, gui, visual, core, data, event, logging, monitors,tools,sound,iohub,hardware
+from psychopy import locale_setup, sound, gui, visual, core, data, event, logging, monitors,tools,iohub,hardware
 from psychopy.constants import (NOT_STARTED, STARTED, PLAYING, PAUSED,
                                 STOPPED, FINISHED, PRESSED, RELEASED, FOREVER)
 import numpy as np  # whole numpy lib is available, prepend 'np.'
@@ -8,12 +8,8 @@ from numpy.random import random, randint, normal, shuffle
 import os  # handy system and path functions
 import sys  # to get file system encoding
 import dotmot_params as par # experimental parameters
+import eye_params as ep # eyetracking code
 from psychopy.hardware import keyboard
-#import psychopy.iohub.devices.eyetracker.hw.pupil_labs.pupil_core as pc
-#import psychopy.iohub as io
-#import zmq  #eye-tracking lib
-#from msgpack import loads
-
 '''
 SET UP EXPT
 '''
@@ -56,53 +52,26 @@ thisExp.addLoop(trials)
 EYE-TRACKING
 '''
 if par.eyetracking:
-    ctx=zmq.Context()
-    pupil_remote=ctx.socket(zmq.REQ)
-    pupil_remote.connect('tcp://127.0.0.1:50020')
-    
-    #start recording
-    pupil_remote.send_string('R '+filename)
-    print(pupil_remote.recv_string())
-    
-    # start calibration
-    pupil_remote.send_string('C')
-    print(pupil_remote.recv_string())
-    
-    # ask for sub port
-    pupil_remote.send_string('SUB_PORT')
-    sub_port = pupil_remote.recv_string()
-    
-    #open sub port to listen pupil
-    sub = ctx.socket(zmq.SUB)
-    sub.connect("tcp://{}:{}".format('127.0.0.1', sub_port))
-    sub.subscribe('gaze.')
-    
+    # instantiate eyetracking class
+    eyeTracker = ep.eyeTracking(par.scr['resolution'],par.scr['dist'], par.scr['width'], ip= '127.0.0.1',port='50020')
+    # initialize eye-tracking connection
+    eyeTracker.init_connect()
+    # start-recording
+    eyeTracker.start_recording(filename)
+    # start-calibration
+    eyeTracker.start_calibration()
+    # open ports to communicate with pupil
+    eyeTracker.open_speak_port()
     
 # Instructions screen
 par.image_stim.draw()
 win.flip()
 event.waitKeys() # press space to continue
 
-mySound=sound.Sound('A')
-
 '''
 START TRIALS
 '''
-for  thisTrial in trials:
-    #get gaze position
-        topic, msg = sub.recv_multipart()
-        gaze_position = loads(msg, raw=False)
-        
-       # test eye-tracking
-        loc = gaze_position['norm_pos']
-        pix_loc = (loc[0]*640,loc[1]*480)
-        deg = par.pix2deg(par.scr,pix_loc)
-        polar_ang = par.polarang(a=deg[0],b=deg[1])
-        print(polar_ang)
-    
-        # beep at the start of the trial
-        mySound.play()
-        
+for  thisTrial in trials:        
         # set when the target event happens
         targ_event_loc = int(randint(30,high=par.mte,size=1))
         
@@ -153,16 +122,10 @@ for  thisTrial in trials:
                 t_mevent= t+par.t_win
             
             while t < t_mevent:
-                #get gaze position
-                #topic, msg = sub.recv_multipart()
-                #gaze_position = loads(msg, raw=False)
-                 
-                #to go from norm_pos to pixel space multiply by screen res
-                #loc = gaze_position['norm_pos']
-                #pix_loc = (loc[0]*640,loc[1]*480)
-                #deg = par.pix2deg(par.scr,pix_loc)
-                #polar_ang = par.polarang(a=deg[0],b=deg[1])
-                #print(polar_ang)
+                # test fixation code
+                eyeTracker.check_fixation(1.5)
+                
+                
                 # display fixation cross
                 par.fixation.draw()
                 for loc in par.resp_pos:

@@ -20,7 +20,7 @@ fix_t   = 0.5  # timing for fixation cue
 # refresh rate [Hz]
 # distance [cm]
 # width [cm]
-scr = dict(resolution=(640,480), refresh_rate=60,dist=57,width=14)
+scr = dict(resolution=(1680,1050), refresh_rate=60,dist=57,width=20)
 
 # fixation parameters
 fix = dict(size=0.2, lineColor=[1,1,1], fillColor=[1,1,1],
@@ -63,7 +63,7 @@ resp_pos = [(8.5,0),(-8.5,0),
 
 # Setup the Window
 win = visual.Window(
-    size=scr['resolution'], fullscr=True, screen=1,
+    size=scr['resolution'], fullscr=False, screen=0,
     allowGUI=False, allowStencil=False,
     monitor='testMonitor', color=[0,0,0], colorSpace='rgb', 
     blendMode='avg', useFBO=True)
@@ -114,35 +114,6 @@ cue_left = visual.ShapeStim(win,units='deg',
     vertices = [[-0.2,-0.1], [-0.2,0.1], [0.2,0]],ori=180.0,
     pos=(-0.45,0.0),lineColor = 'white', fillColor = 'white')
 
-def pix2deg(scr,pix):
-    '''
-    convert from pixel coordinates to degrees of visual angle
-    '''
-    pixSize = scr['width']/scr['resolution'][0]
-    sz          = [num*pixSize for num in pix]
-    ang       =  [2*180*np.arctan(num/(2*scr['dist']))/np.pi for num in sz]
-    
-    return ang
-    
-def deg2pix(scr,ang):
-    '''
-    convert from degrees of visual angle to pixels
-    '''
-    pixSize=scr['width']/scr['resolution'][0]
-    sz=[2*scr['dist']*np.arctan(np.pi*num/(2*180)) for num in ang]
-    pix = [np.round(num/pixSize) for num in sz]
-    
-    return pix
-    
-def polarang(a,b):
-    '''
-    a,b in degrees
-    returns polar angle (hypotenuse)
-    a^2+b^2=c^2
-    '''
-    c2 = a**2+b**2
-    c   = np.sqrt(c2)
-    
-    return c
+
     
     
