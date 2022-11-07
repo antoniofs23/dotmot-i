@@ -1,4 +1,4 @@
-class VisualDegrees:
+class VisualConversions:
     '''
     computes polar angle and converts from dva to pixels
     and vice-versa
@@ -29,19 +29,21 @@ class VisualDegrees:
         c2 = a**2+b**2
         return np.sqrt(c2)
 
-
-class eyeTracking(VisualDegrees):
+class eyeTracking(VisualConversions):
     '''
     All things eye tracking e.g., recording, calibrating,
     outputing x,y coordinates in visual space
-    
-    * inherits VisualDegrees class 
+    * inherits VisualConversions class 
     '''
-    def init_connect(self,ip='127.0.0.1:50020'):
+    def __init__(self, ip, port):
+        self.ip = '127.0.0.1'
+        self.port = '50020'
+
+    def init_connect(self):
         import zmq 
         ctx=zmq.Context()
         pupil_remote=ctx.socket(zmq.REQ)
-        pupil_remote.connect('tcp://'+ip)
+        pupil_remote.connect('tcp://'+self.ip+':'+self.port)
         print('Successfully connected')
 
     
@@ -50,7 +52,13 @@ class eyeTracking(VisualDegrees):
         pupil_remote.send_string('R '+filename)
         print(pupil_remote.recv_string())
         print('Recording started')
-    
+        
+    def end_recording(self):
+        # end recording
+        pupil_remote.send_string('r')
+        print(pupil_remote.recv_string())
+        print('Recording ended')
+
     def start_calibration(self):
         #'C' to calibrate
         pupil_remote.send_string('C')
@@ -61,10 +69,9 @@ class eyeTracking(VisualDegrees):
         # ask for sub port
         pupil_remote.send_string('SUB_PORT')
         sub_port = pupil_remote.recv_string()
-    
         #open sub port to listen pupil
         sub = ctx.socket(zmq.SUB)
-        sub.connect("tcp://{}:{}".format('127.0.0.1', sub_port))
+        sub.connect("tcp://{}:{}".format(self.ip, sub_port))
         sub.subscribe('gaze.')
         print('Successfully listening to pupil')
         
