@@ -9,10 +9,10 @@ import os  # handy system and path functions
 import sys  # to get file system encoding
 import dotmot_params as par # experimental parameters
 from psychopy.hardware import keyboard
-import psychopy.iohub.devices.eyetracker.hw.pupil_labs.pupil_core as pc
-import psychopy.iohub as io
-import zmq  #eye-tracking lib
-from msgpack import loads
+#import psychopy.iohub.devices.eyetracker.hw.pupil_labs.pupil_core as pc
+#import psychopy.iohub as io
+#import zmq  #eye-tracking lib
+#from msgpack import loads
 
 '''
 SET UP EXPT
