@@ -123,8 +123,9 @@ for  thisTrial in trials:
             
             while t < t_mevent:
                 # test fixation code
-                eyeTracker.check_fixation(1.5)
-                
+                if par.eyetracking:
+                    fix, ecc = eyeTracker.check_fixation(1.5)
+                    print(ecc)
                 
                 # display fixation cross
                 par.fixation.draw()
@@ -150,6 +151,7 @@ for  thisTrial in trials:
         trials.addData('targ_event_idx',targ_event_loc)
         thisExp.nextEntry()
 
-# end recording
-core.wait(3) # wait 3 secs
-pupil_remote.send_string('r') # end recording
+if par.eyetracking:
+    # end recording
+    core.wait(3) # wait 3 secs
+    eyeTracker.end_recording()

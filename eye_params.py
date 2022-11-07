@@ -100,13 +100,11 @@ class eyeTracking(VisualConversions):
         a = self.pix2deg(numpy.absolute(x_pix-self.center_x))
         b = self.pix2deg(numpy.absolute(y_pix-self.center_y))
         ecc = self.polarAngle(a,b)
-        print(ecc)
         if ecc < rad:
-            print('fixating')
-        elif ecc > rad:
-            print('not_fixating')
-        elif ecc == rad:
-            print('not_fixating')
+           return (True, ecc)
+        elif ecc > rad or ecc == rad:
+           return (False, ecc)
+     
         
         
         
