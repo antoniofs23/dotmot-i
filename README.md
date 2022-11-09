@@ -5,5 +5,7 @@ Things to do:
 1. collect response   [check]
 2. fix attention cue  [check]
 3. get eyetracking to work [check]
-4. turn pix to degrees (find center in pix; subtract from the rest; baseline correct to 0 being screen center) 
+4. turn pix to degrees [check]
+5. implement post processing for fixation [check]
+6. extend post processing for saccade detection
 	
