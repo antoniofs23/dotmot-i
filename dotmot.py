@@ -1,4 +1,4 @@
-from psychopy import locale_setup, sound, gui, visual, core, data, event, logging, monitors,tools,iohub,hardware
+from psychopy import locale_setup, sound, gui, visual, core, data, event, logging,sound,monitors,tools,iohub,hardware
 from psychopy.constants import (NOT_STARTED, STARTED, PLAYING, PAUSED,
                                 STOPPED, FINISHED, PRESSED, RELEASED, FOREVER)
 import numpy as np  # whole numpy lib is available, prepend 'np.'
@@ -8,7 +8,7 @@ from numpy.random import random, randint, normal, shuffle
 import os  # handy system and path functions
 import sys  # to get file system encoding
 import dotmot_params as par # experimental parameters
-import eye_params as ep # eyetracking code
+import pupilcore as ep # eyetracking code
 from psychopy.hardware import keyboard
 '''
 SET UP EXPT
@@ -48,6 +48,8 @@ thisExp = data.ExperimentHandler(name=expName, version='1.0', extraInfo=expInfo,
 # add trials to handler
 thisExp.addLoop(trials)
 
+# beeps for correct responses
+beep = sound.Sound(value='A')
 '''
 EYE-TRACKING
 '''
@@ -71,7 +73,12 @@ event.waitKeys() # press space to continue
 '''
 START TRIALS
 '''
-for  thisTrial in trials:        
+for  thisTrial in trials:
+        t = trialClock.reset()
+        t = trialClock.getTime()
+        fix, ecc = eyeTracker.check_fixation(1.5)
+        print(ecc)
+        
         # set when the target event happens
         targ_event_loc = int(randint(30,high=par.mte,size=1))
         
@@ -86,7 +93,7 @@ for  thisTrial in trials:
         for loc in par.resp_pos:
             par.resp_sqr.pos= loc
             par.resp_sqr.draw()
-        
+                    
         # present attention cue for 500ms
         # valid 
         if thisTrial['attention_cue']=='valid':
@@ -102,7 +109,7 @@ for  thisTrial in trials:
         
         win.flip()
         core.wait(par.cue_t)
-
+                    
         for num in range(par.mte):
             # reset trial clock
             t = trialClock.reset()
@@ -121,12 +128,7 @@ for  thisTrial in trials:
             else:
                 t_mevent= t+par.t_win
             
-            while t < t_mevent:
-                # test fixation code
-                if par.eyetracking:
-                    fix, ecc = eyeTracker.check_fixation(1.5)
-                    print(ecc)
-                
+            while t < t_mevent:                    
                 # display fixation cross
                 par.fixation.draw()
                 for loc in par.resp_pos:
@@ -140,14 +142,15 @@ for  thisTrial in trials:
                 
                 # set dot refresh --speed--
                 #core.wait(speed)
-                t = trialClock.getTime() 
+                t = trialClock.getTime()
                 # record key presses
                 keys = event.getKeys()
                 if keys:
                     if 'escape' in keys:
                         core.quit()
-                
-                # store data
+                        
+                    
+        # store data
         trials.addData('targ_event_idx',targ_event_loc)
         thisExp.nextEntry()
 

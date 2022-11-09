@@ -100,6 +100,9 @@ class eyeTracking(VisualConversions):
         a = self.pix2deg(numpy.absolute(x_pix-self.center_x))
         b = self.pix2deg(numpy.absolute(y_pix-self.center_y))
         ecc = self.polarAngle(a,b)
+        
+        print(currentGaze['norm_pos'])
+        
         if ecc < rad:
            return (True, ecc)
         elif ecc > rad or ecc == rad:

@@ -20,7 +20,7 @@ fix_t   = 0.5  # timing for fixation cue
 # refresh rate [Hz]
 # distance [cm]
 # width [cm]
-scr = dict(resolution=(1024,768), refresh_rate=85,dist=57,width=30)
+scr = dict(resolution=(1024,768), refresh_rate=85,dist=57,width=38)
 
 # fixation parameters
 fix = dict(size=0.2, lineColor=[1,1,1], fillColor=[1,1,1],
@@ -52,14 +52,14 @@ motion_dir = [0,45,90,135,180,225,270,315]
 
 # left vs right dot Field
 # eccentricity in degrees
-R_fieldPos = (6.5,0.0)
-L_fieldPos = (-6.5,0.0)
+R_fieldPos = (8.5,0.0)
+L_fieldPos = (-8.5,0.0)
 
 # set up 8 response dots
-resp_pos = [(12.5,0),(-12.5,0),
-                     (0,10),(0,-10),
-                     (9.5,8),(-9.5,8),
-                     (-9.5,-8),(9.5,-8)]
+resp_pos = [(16.5,0),(-16.5,0),
+                     (0,12),(0,-12),
+                     (11.5,10),(-11.5,10),
+                     (-11.5,-10),(11.5,-10)]
 
 # Setup the Window
 win = visual.Window(
@@ -100,7 +100,7 @@ resp_sqr = visual.Rect(
 
 # fixation circle
 fixation = visual.Circle(
-    win=win, units='deg',size=0.1,
+    win=win, units='deg',size=0.25,
     pos=(0,0),lineColor=fix['lineColor'],lineColorSpace='rgb',
     fillColor=fix['fillColor'], fillColorSpace='rgb',
     opacity=fix['opacity'], depth=fix['depth'],interpolate=True)
