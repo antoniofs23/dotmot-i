@@ -7,6 +7,7 @@ from numpy import (sin, cos, tan, log, log10, pi, average,
 from numpy.random import random, randint, normal, shuffle
 import os  # handy system and path functions
 import sys  # to get file system encoding
+import time
 import dotmot_params as par # experimental parameters
 import pupilcore as ep # eyetracking code
 from psychopy.hardware import keyboard
@@ -64,6 +65,20 @@ if par.eyetracking:
     eyeTracker.start_calibration()
     # open ports to communicate with pupil
     eyeTracker.open_speak_port()
+    # open listen port
+    eyeTracker.open_listen_port()
+    #setup eye-tracking clock
+    # measure clock offset
+    stable_offset_mean = eyeTracker.measure_clock_offset_stable(trialClock.getTime,n_samples=10)
+    #pupil_time_actual = eyeTracker.request_pupil_time()
+    #local_time_actual = trialClock.getTime()
+    #pupil_time_calc_locally = local_time_actual + stable_offset_mean
+    # prepare to send annotations
+    eyeTracker.notify({'subject': 'start_plugin', 'name': 'Annotation_Capture', 'args': {}})
+    
+    
+    
+
     
 # Instructions screen
 par.image_stim.draw()
@@ -74,10 +89,12 @@ event.waitKeys() # press space to continue
 START TRIALS
 '''
 for  thisTrial in trials:
+        # send trial start trigger
         t = trialClock.reset()
         t = trialClock.getTime()
-        fix, ecc = eyeTracker.check_fixation(1.5)
-        print(ecc)
+        if par.eyetracking:
+            trigger1=ep.eyeTracking.new_trigger('trial_start',0.0,t+stable_offset_mean)
+            eyeTracker.send_trigger(trigger1)
         
         # set when the target event happens
         targ_event_loc = int(randint(30,high=par.mte,size=1))
@@ -109,6 +126,12 @@ for  thisTrial in trials:
         
         win.flip()
         core.wait(par.cue_t)
+        
+        # pre-cue offset
+        t = trialClock.getTime()
+        if par.eyetracking:
+            trigger1=ep.eyeTracking.new_trigger('pre_cue_offset',0.0,t+stable_offset_mean)
+            eyeTracker.send_trigger(trigger1)
                     
         for num in range(par.mte):
             # reset trial clock
@@ -128,6 +151,11 @@ for  thisTrial in trials:
             else:
                 t_mevent= t+par.t_win
             
+            # start of motion event
+            t = trialClock.getTime()
+            if par.eyetracking:
+                trigger1=ep.eyeTracking.new_trigger('motion_event_onset',0.0,t+stable_offset_mean)
+                eyeTracker.send_trigger(trigger1)
             while t < t_mevent:                    
                 # display fixation cross
                 par.fixation.draw()
@@ -139,6 +167,7 @@ for  thisTrial in trials:
                 par.r_dots.draw()
                 par.l_dots.draw()
                 win.flip()
+             
                 
                 # set dot refresh --speed--
                 #core.wait(speed)
@@ -148,8 +177,13 @@ for  thisTrial in trials:
                 if keys:
                     if 'escape' in keys:
                         core.quit()
-                        
-                    
+            
+                # start of motion event
+                t = trialClock.getTime()
+                if par.eyetracking:
+                    trigger1=ep.eyeTracking.new_trigger('motion_event_offset',0.0,t+stable_offset_mean)
+                    eyeTracker.send_trigger(trigger1)
+                
         # store data
         trials.addData('targ_event_idx',targ_event_loc)
         thisExp.nextEntry()
