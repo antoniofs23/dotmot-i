@@ -51,9 +51,8 @@ class pupil_postprocessing:
             x_time.append(HMS/100)
         return x_time
             
-    def remove_low_conf(self):
+    def remove_low_conf(self,data):
         '''retuns only timestamps for which conf > 0.95'''
-        data = self.get_gaze_pos()
         return data[data['confidence']>0.95]
     
     def plt_gaze_pos(self,data):

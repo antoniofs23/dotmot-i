@@ -15,13 +15,9 @@ postprocessing.print_file_struc()
 # get gaze data
 gaze_data = postprocessing.get_gaze_pos()
 
-# plot data
-#postprocessing.plt_gaze_pos(gaze_data)
-#postprocessing.plt_gaze_scatter(gaze_data)
-
 # remove low confidence samples
-gaze_data = postprocessing.remove_low_conf()
+new_data = postprocessing.remove_low_conf(gaze_data)
 
 # plot data again
-postprocessing.plt_gaze_pos(gaze_data)
-postprocessing.plt_gaze_scatter(gaze_data)
+postprocessing.plt_gaze_pos(new_data)
+postprocessing.plt_gaze_scatter(new_data)
