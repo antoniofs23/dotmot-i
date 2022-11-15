@@ -180,9 +180,10 @@ for  thisTrial in trials:
             
                 # start of motion event
                 t = trialClock.getTime()
-                if par.eyetracking:
-                    trigger1=ep.eyeTracking.new_trigger('motion_event_offset',0.0,t+stable_offset_mean)
-                    eyeTracker.send_trigger(trigger1)
+            
+            if par.eyetracking:
+                trigger1=ep.eyeTracking.new_trigger('motion_event_offset',0.0,t+stable_offset_mean)
+                eyeTracker.send_trigger(trigger1)
                 
         # store data
         trials.addData('targ_event_idx',targ_event_loc)
