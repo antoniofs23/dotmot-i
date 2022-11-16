@@ -7,5 +7,4 @@ Things to do:
 3. get eyetracking to work [check]
 4. turn pix to degrees [check]
 5. implement post processing for fixation [check]
-6. extend post processing for saccade detection
 	
