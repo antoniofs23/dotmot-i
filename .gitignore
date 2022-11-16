@@ -4,3 +4,4 @@ data/
 __pycache__/
 *.xlsx
 .ipynb
+.ipynb_checkpoints/
